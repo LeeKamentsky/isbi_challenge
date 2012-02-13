@@ -31,6 +31,7 @@ import cellprofiler.settings as cps
 import cellprofiler.preferences as cpprefs
 import cellprofiler.cpmath.outline
 from cellprofiler.cpmath.cpmorphology import all_connected_components
+from cellprofiler.cpmath.cpmorphology import fill_labeled_holes
 
 
 ###################################
@@ -259,6 +260,10 @@ class EMCleanup(cpm.CPModule):
         # Renumber.
         #
         output_labeling = lnumbers[input_labeling]
+        #
+        # Fill holes.
+        #
+        output_labeling = fill_labeled_holes(output_labeling)
         #
         # Remove the border pixels. This is for the challenge which requires
         # a mask. 
