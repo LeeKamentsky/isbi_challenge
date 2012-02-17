@@ -155,10 +155,10 @@ metadata = r"""<?xml version="1.0" encoding="UTF-8"?>
    </StructuredAnnotations>
   </OME>"""
 
-for i in range(1,30):
+for i in range(1,31):
     url = "file:" + urllib.pathname2url(os.path.join(path, "TrainPrediction%02d.tiff" % i))
     image = subimager.client.get_image(url)
     image = image / np.max(image)
-    subimager.client.post_image(out_url, image, metadata, index = str(i-1), compresion="LZW")
+    subimager.client.post_image(out_url, image, metadata, index = str(i-1), compression="LZW")
     
 subimager.client.stop_subimager()

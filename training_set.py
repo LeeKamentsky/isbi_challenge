@@ -35,7 +35,7 @@ background = ~ is_membrane[i,j,k]
 i,j,k = i[background], j[background], k[background]
 p = r.permutation(len(i))[0:neg]
 coords = np.vstack([coords, np.column_stack([i[p], j[p], k[p]])])
-npts_sampled = 100000
+npts_sampled = 200000
 if len(sys.argv) > 1 and sys.argv[1] == "refine":
     #
     # Add the false positives and false negatives to the training set

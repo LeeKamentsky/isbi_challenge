@@ -57,10 +57,10 @@ if __name__=="__main__":
     try:
         if len(sys.argv) > 1 and sys.argv[1] == "write":
             name = "predicted_train_labels"
-            if sys.argv > 2:
+            if len(sys.argv) > 2:
                 name = sys.argv[2]
             dest = "../train_prediction.tif"
-            if sys.argv > 3:
+            if len(sys.argv) > 3:
                 dest = sys.argv[3]
             copy_hdf_to_tif_stack("../challenge.h5", 
                                   dest, 

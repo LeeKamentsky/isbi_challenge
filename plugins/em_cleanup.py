@@ -211,22 +211,27 @@ class EMCleanup(cpm.CPModule):
             tp2 + np.array([0, 1], int)[np.newaxis,:],
             input_labeling[tp2[:, 0], tp2[:, 1]],
             input_labeling[tp2[:, 0], tp2[:, 1]+1]])])
-        #
-        # Broadcast the touchpair counts and scores into sparse arrays.
-        # The sparse array convention is to sum duplicates
-        #
-        counts = coo_matrix(
-            (np.ones(touchpair.shape[0], int),
-             (touchpair[:,TP_L0], touchpair[:,TP_L1]))).toarray()
-        scores = coo_matrix(
-            (prediction_image[touchpair[:, TP_I0],
-                              touchpair[:, TP_J0]] +
-             prediction_image[touchpair[:, TP_I1],
-                              touchpair[:, TP_J1]],
-             (touchpair[:,TP_L0], touchpair[:,TP_L1]))).toarray() / 2.0
-        scores = scores / counts
-        to_remove = ((counts > self.min_border.value) &
-                     (scores > 1 - self.min_support.value))
+        if np.any(touch):
+            #
+            # Broadcast the touchpair counts and scores into sparse arrays.
+            # The sparse array convention is to sum duplicates
+            #
+            counts = coo_matrix(
+                (np.ones(touchpair.shape[0], int),
+                 (touchpair[:,TP_L0], touchpair[:,TP_L1])),
+                shape=[input_objects.count+1]*2).toarray()
+            scores = coo_matrix(
+                (prediction_image[touchpair[:, TP_I0],
+                                  touchpair[:, TP_J0]] +
+                 prediction_image[touchpair[:, TP_I1],
+                                  touchpair[:, TP_J1]],
+                 (touchpair[:,TP_L0], touchpair[:,TP_L1])),
+                shape=[input_objects.count+1]*2).toarray() / 2.0
+            scores = scores / counts
+            to_remove = ((counts > self.min_border.value) &
+                         (scores > 1 - self.min_support.value))
+        else:
+            to_remove = np.zeros((0,2), bool)
         #
         # For all_connected_components, do forward and backward links and
         # self-to-self links
@@ -249,7 +254,9 @@ class EMCleanup(cpm.CPModule):
         # Find the biggest neighbor to all. If no neighbors, label = 0
         #
         largest = np.zeros(areas.shape[0], np.uint32)
-        largest[:counts.shape[1]] = np.argmax(counts, 0)
+        if np.any(touch):
+            largest[:counts.shape[1]] = \
+                np.argmax(np.maximum(counts, counts.transpose()), 0)
         remove_pairs = np.vstack([
             remove_pairs,
             np.column_stack([np.arange(len(to_remove))[to_remove],
